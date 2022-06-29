@@ -18,7 +18,7 @@ class StackupFile:
 """.format(board=data["board"], date= data["date"])
         
         for j in copper_layers:   
-            content+="""   {nbr}  {type}  ==========================         {thickness}mm     class      -+-      {side}
+            content+=""" {nbr}  {type}  ==========================         {thickness}mm     class      -+-      {side}
 """.format(nbr=j, type = parse_type(copper_layers[j]), thickness = copper_layers[j]["thickness"],
 side = parse_side(copper_layers[j]["side"]))
 
@@ -32,9 +32,8 @@ side = parse_side(copper_layers[j]["side"]))
  Solder Mask .......... : {solder_mask}
  Silkscreen ........... : {silkscreen}
  Electrical Test ...... : e""".format(
-  thick=data["board_thickness"],
-  finish=data["finish"], solder_mask=data["solder_mask"],
-  silkscreen=data["silkscreen"],
+  thick=data["board_thickness"], finish=data["finish"], 
+  solder_mask=data["solder_mask"], silkscreen=data["silkscreen"],
   width = data["width"], height = data["height"])
 
         with open(path,"w") as file:

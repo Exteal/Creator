@@ -23,10 +23,6 @@ class PcbFile:
     (33 "F.Adhes" user "F.Adhesive")
     (34 "B.Paste" user)
     (35 "F.Paste" user)
-    (36 "B.SilkS" user "B.Silkscreen")
-    (37 "F.SilkS" user "F.Silkscreen")
-    (38 "B.Mask" user "B.SolderMask")
-    (39 "F.Mask" user "F.SolderMask")
     (40 "Dwgs.User" user "User.Drawings")
     (41 "Cmts.User" user "User.Comments")
     (42 "Eco1.User" user "User.Eco1")
@@ -56,16 +52,20 @@ class PcbFile:
     for layer in range(1,data["Layers"]-1):
       str +="      (layer Inner{layer}.Cu (thickness {copper_inner_thickness}))\n".format(layer=layer, copper_inner_thickness=data["copper_inner_thickness"])
 
+    str += """      (layer "F.Paste" (type "Top Solder Paste"))
+      (layer "B.Paste" (type "Bottom Solder Paste"))"""
+
+    
+    str += get_silkcreen_stackup(data["silkscreen"])
+
+    str+= get_solder_mask_stackup(data["solder_mask"])
+
     str+="""      (copper_finish "{finish}")
   
     )
-
-    (uvias_allowed {uvia})
-    (blind_buried_vias_allowed {bvia})
     (via_drill {via_drill})
-    (via_size {via_size})""".format(uvia = isAllowed(data["UVias"]), bvia = isAllowed(data["BVias"]),
-    via_drill = data["Via_drill_diameter"], via_size=data["Via_diameter"],
-    finish=data["finish"], )
+    (via_size {via_size})""".format(via_drill = data["Via_drill_diameter"],
+    via_size=data["Via_diameter"], finish=data["finish"])
 
     if(data["UVias"]):
       str+="""    
@@ -86,31 +86,46 @@ def isAllowed(bool):
   return "no"
 
 def get_optional_layers(data):
+  """returns a list containing optional layers definition"""
   layers = []
   layers.append(get_silkscreen_layers(data["silkscreen"]))
   layers.append(get_solder_mask_layers(data["solder_mask"]))
   return layers
 
-def get_silkscreen_layers(data):
-  if (data == "Both"):
-    return """\n    (36 "B.SilkS" user "B.Silkscreen")
-    (37 "F.SilkS" user "F.Silkscreen")\n"""
-  elif (data == "Top" ):
-    return '\n    (37 "F.SilkS" user "F.Silkscreen")\n'
-  elif (data == "Bottom" ):
-    return '\n    (36 "B.SilkS" user "B.Silkscreen")\n'
-  elif (data == "None" ):
+
+def get_lines(data, line_top, line_bottom):
+  """returns kicad_pcb file lines """
+  if data == "Both":
+    return "\n" + line_top + "\n" + line_bottom + "\n"
+  elif data == "Top" :
+    return "\n" + line_top + "\n"
+  elif data == "Bottom" :
+    return "\n" + line_bottom + "\n"
+  elif data == "None" :
     return ""
+  else :
+    return ""
+
+def get_silkscreen_layers(data):
+  silkscreen_top = '    (36 "F.SilkS" user "F.Silkscreen")'
+  silkscreen_bottom = '    (37 "B.SilkS" user "B.Silkscreen")'
+
+  return get_lines(data, silkscreen_top, silkscreen_bottom)
+
+def get_silkcreen_stackup(data):
+  silk_top = '      (layer "F.SilkS" (type "Top Silk Screen"))'
+  silk_bottom = '      (layer "B.SilkS" (type "Bottom Silk Screen"))'
+
+  return get_lines(data, silk_top, silk_bottom)
 
 def get_solder_mask_layers(data):
-  mask_top = '    (39 "F.Mask" user "F.SolderMask")'
-  mask_bottom = '    (38 "B.Mask" user "B.SolderMask")'
+  mask_top = '    (38 "F.Mask" user "F.SolderMask")'
+  mask_bottom = '    (37 "B.Mask" user "B.SolderMask")'
 
-  if (data == "Both"):
-    return "\n" + mask_bottom + "\n" + mask_top + "\n"
-  elif (data == "Top" ):
-    return "\n" + mask_top + "\n"
-  elif (data == "Bottom" ):
-    return "\n" + mask_bottom + "\n"
-  elif (data == "None" ):
-    return ""
+  return get_lines(data, mask_top, mask_bottom)
+
+def get_solder_mask_stackup(data):
+  mask_top = '      (layer "F.Mask" (type "Top Solder Mask") (thickness 0.01))'
+  mask_bottom = '      (layer "B.Mask" (type "Bottom Solder Mask") (thickness 0.01))'
+
+  return get_lines(data, mask_top, mask_bottom) 
