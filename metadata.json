@@ -1,0 +1,37 @@
+{
+    "$schema": "https://go.kicad.org/pcm/schemas/v1",
+    "name": "Creator",
+    "description": "Project creation and Archive tool",
+    "description_full": "Create kicad projects, Generate hierarchy, Generate fabrication files, Archive projects",
+    "identifier": "com.github.cea.creator",
+    "type": "plugin",
+    "author": {
+        "name": "Ronan Houée",
+        "contact": {
+            "email": "rh.4@laposte.net"
+        }
+    },
+    "license": "GPL-2.0",
+    "resources": {
+        "Github": "https://github.com/Exteal/Creator",
+        "Readme": "https://github.com/Exteal/Creator/blob/master/README.md"
+    },
+    "tags": [
+        "kicad",
+        "pcbnew",
+        "archive",
+        "generation",
+        "fabrication",
+        "project"
+    ],
+    "versions": [
+        {
+            "version": "1.0.0",
+            "status": "development",
+            "kicad_version": "6.0.4",
+            "platforms": [
+                "windows"
+            ]
+        }
+    ]
+}
