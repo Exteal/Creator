@@ -1,0 +1,9 @@
+{
+    "PLUGIN_PATH" : "\\Dapdc5/rh270862/My Documents/KiCad/6.0/scripting/plugins/Fab_Dir/",
+    "ARCHIVE_FILE_PATH" : "archivage/Nmr_Cartes.txt",
+    "EXCEL_PCB_FILE" : "PCB_Class.xlsx",
+    "CARD_LINE_CHAR" : ":",
+    "TEMP_ARCHIVE_FILE" : "archivage/temp_archive_file.txt",
+    "DEFAULT_PATH" : "archivage/"
+
+}
