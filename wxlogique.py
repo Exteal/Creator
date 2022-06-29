@@ -435,7 +435,7 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
         with open(os.path.join(os.path.dirname(__file__) + "./Utils/UserData.json")) as file: 
             self.user_data = json.load(file)
 
-        self.EXCEL_PCB_FILE =  self.user_data["PLUGIN_PATH"].replace( '\\' , '\\\\') + "Utils\\PCB_Class.xlsx"
+        self.EXCEL_PCB_FILE =  self.user_data["PLUGIN_PATH"].replace( '\\' , '\\\\') + "Utils/PCB_Class.xlsx"
         self.DEFAULT_PATH = self.user_data["DEFAULT_PATH"]
 
         self.archive_handler = Archive.ArchiveTxt(self.user_data)
@@ -739,10 +739,10 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
 
             try:
                 if(self.checkBoxAllowMicroVia.IsChecked()):
-                    int(self.lineEditUViaDiameter.GetValue())
-                    int(self.lineEditUViaDrillDiameter.GetValue())
+                    float(self.lineEditUViaDiameter.GetValue())
+                    float(self.lineEditUViaDrillDiameter.GetValue())
             except Exception:
-                raise Exception("Micro via data must be integers")
+                raise Exception("Micro via data must be floating point numbers")
 
             if not (self.comboBoxFinish.GetValue() and self.comboBoxSolderMask.GetValue()
                  and self.comboBoxSilkscreen.GetValue() and self.comboBoxElectricalTest.GetValue()):
@@ -756,8 +756,6 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
 
         nbLayers= int(self.comboBoxLayers.GetValue())
         thickness = float(self.lineEditThickness.GetValue())
-        allowUVias = self.checkBoxAllowMicroVia.IsChecked()
-        allowBVias = self.checkBoxAllowBuriedVia.IsChecked()
         trackWidth = int(self.lineEditTrackWidth.GetValue())
         trackToTrackSpace = int(self.lineEditTrackToTrackSpace.GetValue())
         viaDrillDiameter = int(self.lineEditViaDrillDiameter.GetValue()) 
@@ -767,15 +765,15 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
         finish = self.comboBoxFinish.GetValue()
         silkscreen = self.comboBoxSilkscreen.GetValue()
         solder_mask = self.comboBoxSolderMask.GetValue()
-
+        allow_micro_vias = self.checkBoxAllowMicroVia.IsChecked()
         copper_inner_thickness = float(self.lineEditCopperInnerThickness.GetValue())
         copper_outer_thickness = float(self.lineEditCopperOuterThickness.GetValue())
         dielectric_thickness = calculate_dielectric_thickness(thickness, copper_outer_thickness, copper_inner_thickness, nbLayers)
 
         data = {"Layers" : nbLayers, "Thickness" : thickness,
-                "UVias" : allowUVias, "BVias" : allowBVias,
                 "Copper_line_width" : trackWidth,
                 "Min_Copper_Edge" : trackToTrackSpace,
+                "UVias" : allow_micro_vias,
                 "Clearance" : trackToTrackSpace,
                 "Diff_pair_gap" : trackToTrackSpace,
                 "Diff_pair_via_gap" : holeToHole - viaDiameter,
@@ -793,9 +791,9 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
                 "dielectric_thickness" : dielectric_thickness
                 }
     
-        if data["UVias"]:
-            data["uvia_diameter"] = int(self.lineEditUViaDiameter.GetValue())
-            data["uvia_drill_diameter"] = int(self.lineEditUViaDrillDiameter.GetValue())
+        if allow_micro_vias:
+            data["uvia_diameter"] = float(self.lineEditUViaDiameter.GetValue())
+            data["uvia_drill_diameter"] = float(self.lineEditUViaDrillDiameter.GetValue())
         
         return data
 
@@ -808,21 +806,18 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
         via_drill_diameter = int(self.lineEditViaDrillDiameter.GetValue()) / 10**3
         via_diameter = int(self.lineEditViaDiameter.GetValue()) / 10**3
         hole_to_hole = int(self.lineEditHoleToHole.GetValue()) / 10**3
+        allow_micro_vias = self.checkBoxAllowMicroVia.IsChecked()
+        allow_buried_vias = self.checkBoxAllowBuriedVia.IsChecked()
 
         data = {
                 "fileName":file_name,
                 "rules": {
+                    "allow_blind_buried_vias": allow_buried_vias,
+                    "allow_microvias": allow_micro_vias,
                     "min_clearance": track_to_track_space,
                     "min_track_width": track_width,
-                    "min_via_annular_width": 0.049999999999999996,
                     "min_via_diameter": via_diameter,
                     "min_hole_clearance": hole_to_hole,
-                    "min_copper_edge_clearance": 10.0,
-                    "min_through_hole_diameter": 0.3,
-                    "min_hole_to_hole": 0.25,
-                    "min_microvia_diameter": 0.19999999999999998,
-                    "min_microvia_drill": 0.09999999999999999,
-                    "min_silk_clearance": 0.0,
                 },
                 "net_settings": {
                     "classes": [
@@ -845,9 +840,9 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
                 }
         }
 
-        if(self.checkBoxAllowMicroVia.IsChecked()):
-            data["rules"]["min_microvia_diameter"] = int(self.lineEditUViaDiameter.GetValue())
-            data["rules"]["min_microvia_drill"] = int(self.lineEditUViaDrillDiameter.GetValue())
+        if(allow_micro_vias):
+            data["rules"]["min_microvia_diameter"] = float(self.lineEditUViaDiameter.GetValue())
+            data["rules"]["min_microvia_drill"] = float(self.lineEditUViaDrillDiameter.GetValue())
         return data
 
     def set_kicad_schematic_data(self):
