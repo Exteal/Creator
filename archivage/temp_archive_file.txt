@@ -1,1 +1,1 @@
-:K41V:20220524:CMS:Mcx2Hsec8:ADEMONTI:ADEMONTI:ugugug:
+:K77V:20220630:AtlasP2_ADC:daisyChainBGAbrd:AGRABAS:AGRABAS:ff:True:False:4:1.32:0.012:0.02:Immersion silver:Top:Bottom:

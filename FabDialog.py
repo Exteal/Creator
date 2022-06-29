@@ -6,7 +6,7 @@
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
 ###########################################################################
-
+import os
 import wx
 import wx.xrc
 import wx.adv
@@ -353,7 +353,7 @@ class HierarchyFrame ( wx.Frame ):
 		bSizer28.Add( self.labelCopperInnerThickness, 0, wx.ALL, 5 )
 
 		self.lineEditCopperInnerThickness = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.lineEditCopperInnerThickness.SetToolTip( u"unit : um" )
+		self.lineEditCopperInnerThickness.SetToolTip( u"unit : mm" )
 
 		bSizer28.Add( self.lineEditCopperInnerThickness, 0, wx.EXPAND|wx.ALL, 5 )
 
@@ -368,7 +368,7 @@ class HierarchyFrame ( wx.Frame ):
 		bSizer281.Add( self.labelCopperOuterThickness, 0, wx.ALL, 5 )
 
 		self.lineEditCopperOuterThickness = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.lineEditCopperOuterThickness.SetToolTip( u"unit : um" )
+		self.lineEditCopperOuterThickness.SetToolTip( u"unit : mm" )
 
 		bSizer281.Add( self.lineEditCopperOuterThickness, 0, wx.ALL|wx.EXPAND, 5 )
 
@@ -450,9 +450,8 @@ class HierarchyFrame ( wx.Frame ):
 		self.lineEditHierarchyPath = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer35.Add( self.lineEditHierarchyPath, 0, wx.ALL, 5 )
 
-		self.pushButtonHierarchyPath = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+		self.pushButtonHierarchyPath = wx.BitmapButton( self, wx.ID_ANY,  wx.Bitmap(os.path.join(os.path.dirname(__file__) + "./Pictures/select_path_icon.png"), wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
 
-		self.pushButtonHierarchyPath.SetBitmap( wx.Bitmap( u"C:\\Users\\rh270862\\Downloads\\3994350_click_cursor_mouse_pointer_select_icon (1).png", wx.BITMAP_TYPE_ANY ) )
 		bSizer35.Add( self.pushButtonHierarchyPath, 1, wx.ALL|wx.EXPAND, 5 )
 
 
@@ -644,9 +643,8 @@ class ArchiveFrame ( wx.Frame ):
 		self.lineEditArchiverPath = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
 		bSizer30.Add( self.lineEditArchiverPath, 0, wx.ALL|wx.ALIGN_BOTTOM, 5 )
 
-		self.m_bpButton2 = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+		self.m_bpButton2 =  wx.BitmapButton( self, wx.ID_ANY,  wx.Bitmap(os.path.join(os.path.dirname(__file__) + "./Pictures/select_path_icon.png"), wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
 
-		self.m_bpButton2.SetBitmap( wx.Bitmap( u"C:\\Users\\rh270862\\Downloads\\3994350_click_cursor_mouse_pointer_select_icon (1).png", wx.BITMAP_TYPE_ANY ) )
 		bSizer30.Add( self.m_bpButton2, 0, wx.ALL|wx.ALIGN_BOTTOM, 5 )
 
 

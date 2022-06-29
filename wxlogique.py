@@ -74,6 +74,9 @@ def calculate_dielectric_thickness(thickness, copperExtThc, copperInnThc, nbLaye
     diel = ((thickness) - (2*copperExtThc) - (nbLayer-2)*copperInnThc)/(nbLayer-1)
     return diel
 
+def parse_boolean(string):
+    return string == "True"
+
 class HomeLogic(FabDialog.HomeFrame):
     def __init__(self, parent):
         super(HomeLogic, self).__init__(parent)
@@ -494,10 +497,7 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
                             self.lineEditCommentary.GetValue(),
                         ]
 
-
-        try:
-            #raises error if archive not found
-            
+        try:            
             cardNum = self.lineEditCardNumber.GetValue()
             if(cardNum in self.archive_handler.getEveryCardNumber()):
                 wx.LogError("Card number already taken")
@@ -507,7 +507,21 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
             self.archive_handler.writeArchiveLine(cardInfoToArchive)
         
         except Exception as e: 
+            other_info = [
+                self.checkBoxAllowBuriedVia.IsChecked(),
+                self.checkBoxAllowMicroVia.IsChecked(),
+                self.comboBoxLayers.GetValue(),
+                self.lineEditThickness.GetValue(),
+                self.lineEditCopperInnerThickness.GetValue(),
+                self.lineEditCopperOuterThickness.GetValue(),
+                self.comboBoxFinish.GetValue(),
+                self.comboBoxSolderMask.GetValue(),
+                self.comboBoxSilkscreen.GetValue()
+            ]
+
+            cardInfoToArchive.extend(other_info)
             wx.LogMessage(str(e))
+            self.archive_handler.write_temp_archive_file(cardInfoToArchive)
 
         self.displayProgress(30) 
 
@@ -526,6 +540,9 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
         
         self.displayProgress(40)
 
+        #write logfile
+        shutil.copyfile(self.user_data["TEMP_ARCHIVE_FILE"], path + "/log.txt")
+        
         #write .kicad_pcb file
         kicadPcbData = self.set_kicad_pcb_data()
         pathToKicadPcb_File = "/Design/{}.kicad_pcb".format(kicadPcbData["fileName"])
@@ -672,7 +689,7 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
     def display_help(self, event):
         message = """ Plugin documentation is disponible within the plugin files
         
-        Contact developper : rh.4@laposte.net"""
+        Contact developper : creator@net_c.com"""
         display_message(message)
 
     def display_about(self, event):
@@ -685,15 +702,23 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
         dlg = wx.FileDialog(None, "Load Pcb from file", "", "", "", wx.FLP_OPEN | wx.FLP_FILE_MUST_EXIST)
         res = dlg.ShowModal()
 
+        
         if (res == wx.ID_OK):
             filePath = dlg.GetPath()
             try:
                 with open(filePath) as file:
                     line = file.readline()
-                info = self.archive_handler.decomposeCardInfo(line)
-                self.display_card_info(info, num=True)
-            except Exception:
-                wx.LogError("Unexpected Error")
+                sep =  self.user_data["CARD_LINE_CHAR"]
+                split = line.split(sep)
+                card_info = self.archive_handler.decomposeCardInfo(sep.join(split[:8]))
+                self.display_card_info(card_info, num=True)
+
+                for i in range(8):
+                    split.pop(0)
+                self.fill_other_info(split)
+            except Exception as e:
+                wx.LogError("Unexpected Error during file loading" + str(e))
+                #str(e) to display error
 
     def display_card_info(self, cardInfo:dict, num=False):
         if num:
@@ -702,6 +727,21 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
         self.lineEditProjectName.SetValue(cardInfo["projectName"]) 
         self.lineEditClaimer.SetValue(cardInfo["claimerName"]) 
         self.lineEditRouter.SetValue(cardInfo["routerName"])
+
+    def fill_other_info(self, args):
+        if parse_boolean(args[0]):
+            self.checkBoxAllowBuriedVia.SetValue(True)
+            self.checkBoxAllowBuriedVia.GetEventHandler().ProcessEvent(wx.PyCommandEvent(wx.EVT_CHECKBOX.typeId, self.checkBoxAllowBuriedVia.GetId()))
+        if parse_boolean(args[1]):
+            self.checkBoxAllowMicroVia.SetValue(True)
+            self.checkBoxAllowMicroVia.GetEventHandler().ProcessEvent(wx.PyCommandEvent(wx.EVT_CHECKBOX.typeId, self.checkBoxAllowMicroVia.GetId()))
+        self.comboBoxLayers.SetValue(args[2])
+        self.lineEditThickness.SetValue(args[3])
+        self.lineEditCopperInnerThickness.SetValue(args[4])
+        self.lineEditCopperOuterThickness.SetValue(args[5])
+        self.comboBoxFinish.SetValue(args[6])
+        self.comboBoxSolderMask.SetValue(args[7])
+        self.comboBoxSilkscreen.SetValue(args[8])
 
     def char(self, event):
         """blocks every key entry"""
@@ -745,7 +785,7 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
                 raise Exception("Micro via data must be floating point numbers")
 
             if not (self.comboBoxFinish.GetValue() and self.comboBoxSolderMask.GetValue()
-                 and self.comboBoxSilkscreen.GetValue() and self.comboBoxElectricalTest.GetValue()):
+                 and self.comboBoxSilkscreen.GetValue()):
                     raise Exception("A value within the list must be selected")
 
         except Exception as e:

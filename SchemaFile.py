@@ -4,7 +4,7 @@ class Schematic:
 def write_schematic_file(path, data): 
 
     optional =  """(kicad_sch
-    (version {})                                             
+    (version 20211014)                                             
     (generator eeschema)                                         
 
     )""".format(data["version"])

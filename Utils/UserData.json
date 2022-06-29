@@ -1,8 +1,8 @@
 {
-    "PLUGIN_PATH" : "\\Dapdc5/rh270862/My Documents/KiCad/6.0/scripting/plugins/Fab_Dir/",
-    "ARCHIVE_FILE_PATH" : "J:/tests/Nmr_Cartes.txt",
-    "TEMP_ARCHIVE_FILE" : "C:/car/temp_archive_file.txt",
-    "DEFAULT_PATH" : "J:/Stage/testCartes",
+    "PLUGIN_PATH" : "C:/Users/Rr/Documents/KiCad/6.0/scripting/plugins/Creator-main/",
+    "ARCHIVE_FILE_PATH" : "C:/Users/Rr/Documents/KiCad/6.0/scripting/plugins/Creator-main/archivage/Nmr_Cartes.txt",
+    "TEMP_ARCHIVE_FILE" : "C:/Users/Rr/Documents/KiCad/6.0/scripting/plugins/Creator-main/archivage/temp_archive_file.txt",
+    "DEFAULT_PATH" : "C:/Users/Rr/Desktop/test",
     "CARD_LINE_CHAR" : ":",
     "FOOTPRINT_LIBRARY_NAME" : "Library"
 }

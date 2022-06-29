@@ -1,6 +1,5 @@
 import re
 import os
-import fileinput
 from abc import ABC, abstractmethod
 
 HAS_VERSION_PATTERN = "K[0-9]+V[0-9]+"
@@ -118,7 +117,7 @@ class ArchiveTxt(Archive):
         return res 
 
     def write_temp_archive_file(self, args):
-        lineToArchive = self.user_data["CARD_LINE_CHAR"] + self.user_data["CARD_LINE_CHAR"].join(args) + self.user_data["CARD_LINE_CHAR"]
+        lineToArchive = self.user_data["CARD_LINE_CHAR"] + self.user_data["CARD_LINE_CHAR"].join(str(arg) for arg in args) + self.user_data["CARD_LINE_CHAR"]
         with open(self.user_data["TEMP_ARCHIVE_FILE"],"w") as file:
             file.write(lineToArchive + "\n")
 
@@ -161,9 +160,8 @@ class ArchiveTxt(Archive):
                             file.write(lineToArchive + "\n")
 
         except Exception as e:
-            self.write_temp_archive_file(args)
             raise Exception("Failed to open archive file, writing into a temp file ")
-            #str(e) to print error
+            #str(e) to display error in KiCad
 
     def retrieveArchivedCardInfo(self, cardnumber = None):
         with open(self.user_data["ARCHIVE_FILE_PATH"],"r") as file:

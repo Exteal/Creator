@@ -30,8 +30,7 @@ side = parse_side(copper_layers[j]["side"]))
  Class ................ : c
  Finish ............... : {finish}
  Solder Mask .......... : {solder_mask}
- Silkscreen ........... : {silkscreen}
- Electrical Test ...... : e""".format(
+ Silkscreen ........... : {silkscreen}""".format(
   thick=data["board_thickness"], finish=data["finish"], 
   solder_mask=data["solder_mask"], silkscreen=data["silkscreen"],
   width = data["width"], height = data["height"])
