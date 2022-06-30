@@ -3,7 +3,7 @@
     "name": "Creator",
     "description": "Project creation and Archive tool",
     "description_full": "Create kicad projects, Generate hierarchy, Generate fabrication files, Archive projects",
-    "identifier": "com.github.cea.creator",
+    "identifier": "com.github.exteal.creator",
     "type": "plugin",
     "author": {
         "name": "Ronan Houée",
