@@ -1,5 +1,6 @@
 import re
 import os
+import shutil
 from abc import ABC, abstractmethod
 
 HAS_VERSION_PATTERN = "K[0-9]+V[0-9]+"
@@ -121,47 +122,54 @@ class ArchiveTxt(Archive):
         with open(self.user_data["TEMP_ARCHIVE_FILE"],"w") as file:
             file.write(lineToArchive + "\n")
 
-    def writeArchiveLine(self, args:list):
-        try:
-            self.manage_file(self.user_data["ARCHIVE_FILE_PATH"])
+    def writeArchiveLine(self, args: list):                                                                                
+        try:                                                                                                         
+            self.manage_file(self.user_data["ARCHIVE_FILE_PATH"])                                                              
+                                                                                                                    
+            cardNumber = args[0]                                                                                     
+            lineToArchive = self.user_data["CARD_LINE_CHAR"] + self.user_data["CARD_LINE_CHAR"].join(args) + self.user_data["CARD_LINE_CHAR"]                                                                                    
+                                                                                                                    
+            if (re.search("V\d+", cardNumber)):                                                                      
+                                                                                                                    
+                cardNumberVersionless, versionNumber = cardNumber.split("V")                                         
+                cardNumberVersionless += "V"                                                                         
+                                                                                                                    
+                with open(self.user_data["ARCHIVE_FILE_PATH"]) as file:                                                   
+                    lines = file.readlines()
 
-            cardNumber = args[0]
-            lineToArchive = self.user_data["CARD_LINE_CHAR"] + self.user_data["CARD_LINE_CHAR"].join(args) + self.user_data["CARD_LINE_CHAR"]
+                with open(os.path.dirname(self.user_data["ARCHIVE_FILE_PATH"]) + "/temp_arch.txt", "w") as temp_f:                                                                    
+                    if int(versionNumber) == 2:                                                                          
+                        for line in lines:                                                                               
+                            if (line.startswith(self.user_data["CARD_LINE_CHAR"]) and cardNumberVersionless == self.getCardNumberFromCardLine(line)):
+                                line = line.replace(line, line + lineToArchive + "\n")                                   
+                            temp_f.write(line)                                                                                            
+                    elif int(versionNumber) > 2:                                                                         
+                        for line in lines:                                                                               
+                            if (line.startswith(self.user_data["CARD_LINE_CHAR"]) and                                         
+                                    getPreviousVersionCardNum(cardNumber) == self.getCardNumberFromCardLine(line)):      
+                                line = line.replace(line, line + lineToArchive + "\n")
+                            temp_f.write(line)
+                                                                                               
+                                                                                                                    
+                                                                                                                    
+            else:                                                                                                    
+                with open(self.user_data["ARCHIVE_FILE_PATH"]) as file:                                                   
+                    lines = file.readlines()
 
-            if (re.search("V\d+", cardNumber)):
-                
-                cardNumberVersionless, versionNumber = cardNumber.split("V")
-                cardNumberVersionless += "V"
-                
-                if int(versionNumber) == 2:
-                    for line in fileinput.FileInput(self.user_data["ARCHIVE_FILE_PATH"],inplace=1):
-                        if(line.startswith(self.user_data["CARD_LINE_CHAR"]) and cardNumberVersionless == self.getCardNumberFromCardLine(line)):
-                            line=line.replace(line,line+lineToArchive +"\n")
-                        print(line,end='')
-
-                elif int(versionNumber) > 2:
-                    for line in fileinput.FileInput(self.user_data["ARCHIVE_FILE_PATH"],inplace=1):
-                        if (line.startswith(self.user_data["CARD_LINE_CHAR"]) and
-                            getPreviousVersionCardNum(cardNumber) == self.getCardNumberFromCardLine(line)):
-                            line=line.replace(line,line+lineToArchive +"\n")
-                        print(line,end='')
-                    
-            else:
-                breaks = False
-                for line in fileinput.FileInput(self.user_data["ARCHIVE_FILE_PATH"],inplace=1):
-                    if(not breaks and line.startswith(self.user_data["CARD_LINE_CHAR"])
-                    and  card_number_is_lower_than(cardNumber, self.getCardNumberFromCardLine(line))):
-                        line=line.replace(line,lineToArchive +"\n"+line)
-                        breaks = True
-                    print(line,end='')          
-                else:
-                    if (not breaks):
-                        with open(self.user_data["ARCHIVE_FILE_PATH"],"a") as file:
-                            file.write(lineToArchive + "\n")
-
-        except Exception as e:
-            raise Exception("Failed to open archive file, writing into a temp file ")
-            #str(e) to display error in KiCad
+                with open(os.path.dirname(self.user_data["ARCHIVE_FILE_PATH"]) + "/temp_arch.txt", "w") as temp_file:                                                                       
+                    for line in lines:                                                                                   
+                        if (line.startswith(self.user_data["CARD_LINE_CHAR"])                                                 
+                                and card_number_is_lower_than(cardNumber, self.getCardNumberFromCardLine(line))):        
+                            line = line.replace(line, lineToArchive + "\n" + line)
+                            temp_file.write(line)
+                            break                                
+                        temp_file.write(line)
+                    else:                                                                                                
+                        temp_file.write(lineToArchive + "\n")                                                               
+                                                                                                                                                                                                                                                                                                        
+        except Exception as e:                                                                                       
+            raise Exception("Failed to open archive file, writing into a temp file " + str(e))                                
+            # str(e) to display error in KiCad                                                                       
 
     def retrieveArchivedCardInfo(self, cardnumber = None):
         with open(self.user_data["ARCHIVE_FILE_PATH"],"r") as file:

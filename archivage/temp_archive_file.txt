@@ -1,1 +1,1 @@
-:K77V:20220630:AtlasP2_ADC:daisyChainBGAbrd:AGRABAS:AGRABAS:ff:True:False:4:1.32:0.012:0.02:Immersion silver:Top:Bottom:
+:K34V2:20220630:NTOF:Output_1_Channel:DBAUDIN:DBAUDIN::False:False:2:0:0:0:Not specified:Bottom:Bottom:
