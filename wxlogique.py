@@ -232,7 +232,7 @@ class ArchiveLogic(FabDialog.ArchiveFrame):
         
         #is there already a library?
         pattern = re.compile('"(.*):(.*)?"')
-        
+        pattern_sch = re.compile('"(.*)" "(.*):(.*)?"')
 
         for file in project_files:
             temp = []
@@ -256,12 +256,12 @@ class ArchiveLogic(FabDialog.ArchiveFrame):
             with open(path + "/Design/" + file) as f:
                 lines = f.readlines()
                 for line in lines:
-                    if line.startswith("    (property 'Footprint'"):
-                        library = pattern.search(line)
+                    if (line.startswith('    (property "Footprint"') and not(line.startswith('    (property "Footprint" ""'))):
+                        library = pattern_sch.search(line)
                         if(not library):
                            line = line.replace('(property "Footprint" "', '(property "Footprint" "'+ self.user_data["FOOTPRINT_LIBRARY_NAME"] + ":" )
                         else: 
-                            line = re.sub(library.group(1), self.user_data["FOOTPRINT_LIBRARY_NAME"], line)
+                            line = re.sub(library.group(2), self.user_data["FOOTPRINT_LIBRARY_NAME"], line)
                     temp.append(line)
         
             with open(path + "/Design/" + file, "w") as f:
@@ -799,8 +799,8 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
                 raise Exception("Micro via data must be floating point numbers")
 
             if not (self.comboBoxFinish.GetValue() and self.comboBoxSolderMask.GetValue()
-                 and self.comboBoxSilkscreen.GetValue()):
-                    raise Exception("A value within the list must be selected")
+                 and self.comboBoxSilkscreen.GetValue() and self.comboBoxElectricalTest.GetValue()):
+                    raise Exception("ComboBox : A value within the list must be selected")
 
         except Exception as e:
             raise Exception(str(e))
