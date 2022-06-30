@@ -1,8 +1,8 @@
 {
-    "PLUGIN_PATH" : "C:/Users/User/Documents/KiCad/6.0/scripting/plugins/Creator-Mzn/",
-    "ARCHIVE_FILE_PATH" : "C:/Users/User/Documents/KiCad/6.0/scripting/plugins/Creator-Mzn/archivage/Nmr_Cartes.txt",
-    "TEMP_ARCHIVE_FILE" : "C:/Users/User/Documents/KiCad/6.0/scripting/plugins/Creator-Mzn/archivage/temp_archive_file.txt",
-    "DEFAULT_PATH" : "C:/Users/User/Documents/cartes_jicad",
+    "PLUGIN_PATH" : "\\Dapdc5/rh270862/My Documents/KiCad/6.0/scripting/plugins/Creator-Mzn",
+    "ARCHIVE_FILE_PATH" : "\\dapnia/data/users/rh270862_pub/Nmr_Cartes.txt",
+    "TEMP_ARCHIVE_FILE" : "D:/KiCad/erreur/temp_archive_file.txt",
+    "DEFAULT_PATH" : "J:/Stage/testCartes",
     "CARD_LINE_CHAR" : ":",
     "FOOTPRINT_LIBRARY_NAME" : "Library"
 }

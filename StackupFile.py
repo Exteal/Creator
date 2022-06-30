@@ -1,5 +1,7 @@
 class StackupFile:        
     def write_stackup_file(self, data, path):
+        with open(path) as file:
+            class_number, electrical_test = file.readline().split("-")
 
         copper_layers = {}
 
@@ -18,25 +20,32 @@ class StackupFile:
 """.format(board=data["board"], date= data["date"])
         
         for j in copper_layers:   
-            content+=""" {nbr}  {type}  ==========================         {thickness}mm     class      -+-      {side}
+            content+=""" {nbr}  {type}  ==========================         {thickness}mm     {classe}      -+-      {side}
 """.format(nbr=j, type = parse_type(copper_layers[j]), thickness = copper_layers[j]["thickness"],
-side = parse_side(copper_layers[j]["side"]))
+side = parse_side(copper_layers[j]["side"]),  classe = class_number)
 
 
 
         content+="""
  Dimension ............ : {width} mm x {height} mm
- Thickness ............. : {thick} mm
- Class ................ : c
+ Thickness ............ : {thick} mm
+ Class ................ : {classe}
  Finish ............... : {finish}
  Solder Mask .......... : {solder_mask}
- Silkscreen ........... : {silkscreen}""".format(
+ Silkscreen ........... : {silkscreen}
+ Electrical Test ...... : {electrical}""".format(
   thick=data["board_thickness"], finish=data["finish"], 
   solder_mask=data["solder_mask"], silkscreen=data["silkscreen"],
-  width = data["width"], height = data["height"])
+  width = data["width"], height = data["height"],
+  classe = class_number, electrical = electrical_test)
 
         with open(path,"w") as file:
             file.write(content)
+    
+    def store_data(self, data, path):
+        """used to store data inputs such as electrical test and classes"""
+        with open(path, 'w') as file:
+            file.write(data)
 
 def parse_type(layer: dict):
     externs = ["F", "B"]

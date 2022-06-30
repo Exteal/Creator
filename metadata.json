@@ -10,12 +10,13 @@
         "contact": {
             "email": "rh.4@laposte.net"
         }
-    },
+    },   
     "license": "GPL-2.0",
     "resources": {
         "Github": "https://github.com/Exteal/Creator",
         "Readme": "https://github.com/Exteal/Creator/blob/master/README.md"
     },
+    ""
     "tags": [
         "kicad",
         "pcbnew",
@@ -26,8 +27,9 @@
     ],
     "versions": [
         {
-            "version": "1.0.0",
+            "version": "0.0.9",
             "status": "development",
+            "download_url": "https://github.com/Exteal/Creator/archive/refs/tags/v0.0.9-alpha.zip",
             "kicad_version": "6.0.4",
             "platforms": [
                 "windows"

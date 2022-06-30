@@ -27,6 +27,7 @@ from . import PositionFile
 from . import StackupFile
 from . import SchemaFile
 from . import StackupReader
+from . import LogFile
 
 LAYER_CATEGORY_TOP = "TOP"
 LAYER_CATEGORY_BOTTOM = "BOTTOM"
@@ -97,6 +98,10 @@ class ArchiveLogic(FabDialog.ArchiveFrame):
         super(ArchiveLogic, self).__init__(parent)
         with open(os.path.join(os.path.dirname(__file__) + "./Utils/UserData.json")) as file: 
             self.user_data = json.load(file)
+       
+        for key, value in self.user_data.items():
+            self.user_data[key] = self.user_data[key].replace("\\","\\\\")
+
         self.hierarchy_handler = Hierarchy.Hierarchy()
         self.stackup_handler = StackupFile.StackupFile()
         self.stackup_reader = StackupReader.StackupReader_6_0_4()
@@ -157,7 +162,7 @@ class ArchiveLogic(FabDialog.ArchiveFrame):
 
 
         #create DRC report
-        pcbnew.WriteDRCReport(board, path + "/Design/Reports/report.drc",1,True)
+        #pcbnew.WriteDRCReport(board, path + "/Design/Reports/report.drc",1,True)
 
         #create jobFile
         
@@ -242,10 +247,10 @@ class ArchiveLogic(FabDialog.ArchiveFrame):
             with open(path + "/Design/" + file) as f:
                 lines = f.readlines()
                 for line in lines:
-                    if line.startswith("  (symbol"):
+                    if line.startswith("    (property 'Footprint'"):
                         library = pattern.search(line)
                         if(not library):
-                           line = line.replace('  (symbol "', '  (symbol "'+ self.user_data["FOOTPRINT_LIBRARY_NAME"] + ":" )
+                           line = line.replace('(property "Footprint" "', '(property "Footprint" "'+ self.user_data["FOOTPRINT_LIBRARY_NAME"] + ":" )
                         else: 
                             line = re.sub(library.group(1), self.user_data["FOOTPRINT_LIBRARY_NAME"], line)
                     temp.append(line)
@@ -399,22 +404,16 @@ class ArchiveLogic(FabDialog.ArchiveFrame):
         plotter.ClosePlot()
 
     def update_archive_file(self, card_number, date):
-        """adds an archive date at the end of a line in archive file
-        
-        @param card_number : the card_number of the line
-        @param date : the date to add to the file
-        """
         archive_file_path = self.user_data["ARCHIVE_FILE_PATH"]
-        temp_archive_path = os.path.dirname(self.user_data["ARCHIVE_FILE_PATH"]) + "/temp_archive.txt" 
-        with open(archive_file_path) as archive_file:
-            with open(temp_archive_path, "w") as temp_file:
-                for line in archive_file: 
-                    if line.startswith(self.user_data["CARD_LINE_CHAR"] +card_number):
-                        line = line.replace("\n", date + "\n")
-                    temp_file.write(line)
-        
-        shutil.move(temp_archive_path, archive_file_path)
-        
+        new_lines =[]
+        with open(archive_file_path, 'r+') as file:
+            for line in file:
+                if line.startswith(self.user_data["CARD_LINE_CHAR"] + card_number):
+                    line = line.replace("\n", date + "\n")
+                new_lines.append(line)
+        with open(archive_file_path, 'w') as file:
+            file.writelines(new_lines) 
+
     def set_stackup_data(self, board):
         precision = 10**3
 
@@ -438,14 +437,19 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
         with open(os.path.join(os.path.dirname(__file__) + "./Utils/UserData.json")) as file: 
             self.user_data = json.load(file)
 
-        self.EXCEL_PCB_FILE =  self.user_data["PLUGIN_PATH"].replace( '\\' , '\\\\') + "Utils/PCB_Class.xlsx"
-        self.DEFAULT_PATH = self.user_data["DEFAULT_PATH"]
+        for key, value in self.user_data.items():
+            self.user_data[key] = self.user_data[key].replace("\\","\\\\")
 
+        self.EXCEL_PCB_FILE =  self.user_data["PLUGIN_PATH"] + "/Utils/PCB_Class.xlsx"
+        self.DEFAULT_PATH = self.user_data["DEFAULT_PATH"]
+        
         self.archive_handler = Archive.ArchiveTxt(self.user_data)
         self.pcb_standards_handler = ExcelPcbStandards.ExcelPcbStandards()
         self.hierarchy_handler = Hierarchy.Hierarchy()
         self.pcb_file_handler = PcbFile.PcbFile()
         self.pro_file_handler = ProFile.ProFile()
+        self.log_file_handler = LogFile.LogFile(self.user_data)
+        self.stackup_handler = StackupFile.StackupFile()
 
         self.displayInitialPCBInfo()
 
@@ -496,18 +500,7 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
                             self.lineEditRouter.GetValue(),
                             self.lineEditCommentary.GetValue(),
                         ]
-
-        try:            
-            cardNum = self.lineEditCardNumber.GetValue()
-            if(cardNum in self.archive_handler.getEveryCardNumber()):
-                wx.LogError("Card number already taken")
-                self.toggleProgressBarValidation()
-                return
-
-            self.archive_handler.writeArchiveLine(cardInfoToArchive)
-        
-        except Exception as e: 
-            other_info = [
+        other_info = [
                 self.checkBoxAllowBuriedVia.IsChecked(),
                 self.checkBoxAllowMicroVia.IsChecked(),
                 self.comboBoxLayers.GetValue(),
@@ -519,13 +512,24 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
                 self.comboBoxSilkscreen.GetValue()
             ]
 
-            cardInfoToArchive.extend(other_info)
+        log_info = []
+        log_info.extend(cardInfoToArchive)
+        log_info.extend(other_info)
+
+        try:            
+            cardNum = self.lineEditCardNumber.GetValue()
+            if(cardNum in self.archive_handler.getEveryCardNumber()):
+                wx.LogError("Card number already taken")
+                self.toggleProgressBarValidation()
+                return
+            self.archive_handler.writeArchiveLine(cardInfoToArchive)
+        except Exception as e:
             wx.LogMessage(str(e))
-            self.archive_handler.write_temp_archive_file(cardInfoToArchive)
+            self.archive_handler.write_temp_archive_file(log_info)
 
         self.displayProgress(30) 
 
-
+        
         # create hierarchy 
         
         cardNumber = self.lineEditCardNumber.GetValue()
@@ -541,7 +545,7 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
         self.displayProgress(40)
 
         #write logfile
-        shutil.copyfile(self.user_data["TEMP_ARCHIVE_FILE"], path + "/log.txt")
+        self.log_file_handler.write_log_file( log_info, path + "/log.txt" )
         
         #write .kicad_pcb file
         kicadPcbData = self.set_kicad_pcb_data()
@@ -561,8 +565,9 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
        
 
         self.displayProgress(80)
-
-
+        
+        storage = str(self.comboBoxClassNumber.GetValue()) + "-" +  str(self.comboBoxElectricalTest.GetValue())
+        self.stackup_handler.store_data(storage, path + "/Fab/PCB/Stackup/stackup.txt")
         #display error or succes 
 
         ##runs pcbnew, to let user save .pcb file
@@ -896,8 +901,8 @@ class HierarchyLogic(FabDialog.HierarchyFrame):
 # Action Plugin To be launched by Kicad
 class FabAction(pcbnew.ActionPlugin):
     def defaults(self):
-        self.name = "Gen"
-        self.category = "PCB"
+        self.name = "Creator_Mzn"
+        self.category = "Action Plugin"
         self.description = "Generate Archive"
         self.icon_file_name = os.path.join(os.path.dirname(__file__), "./Pictures/Plugin.png")
         self.show_toolbar_button = True
