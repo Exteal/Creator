@@ -8,7 +8,7 @@
     "author": {
         "name": "Ronan Houée",
         "contact": {
-            "email": "rh.4@laposte.net"
+            "email": "creator@net-c.com"
         }
     },   
     "license": "GPL-2.0",
@@ -16,7 +16,6 @@
         "Github": "https://github.com/Exteal/Creator",
         "Readme": "https://github.com/Exteal/Creator/blob/master/README.md"
     },
-    ""
     "tags": [
         "kicad",
         "pcbnew",

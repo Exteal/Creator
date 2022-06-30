@@ -162,7 +162,16 @@ class ArchiveLogic(FabDialog.ArchiveFrame):
 
 
         #create DRC report
-        #pcbnew.WriteDRCReport(board, path + "/Design/Reports/report.drc",1,True)
+        version = pcbnew.GetBuildVersion()
+        release, major, minor = version.split(".")
+
+        if int(major) >0:
+            pcbnew.WriteDRCReport(board, path + "/Design/Reports/report.drc",1,True)
+
+        elif(int(minor.replace(")","")) >= 4):
+            pcbnew.WriteDRCReport(board, path + "/Design/Reports/report.drc",1,True)
+
+
 
         #create jobFile
         
