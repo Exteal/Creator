@@ -166,7 +166,8 @@ class ArchiveTxt(Archive):
                         temp_file.write(line)
                     else:                                                                                                
                         temp_file.write(lineToArchive + "\n")                                                               
-                                                                                                                                                                                                                                                                                                        
+            
+            shutil.copyfile(os.path.dirname(self.user_data["ARCHIVE_FILE_PATH"]) + "/temp_arch.txt", self.user_data["ARCHIVE_FILE_PATH"])
         except Exception as e:                                                                                       
             raise Exception("Failed to open archive file, writing into a temp file " + str(e))                                
             # str(e) to display error in KiCad                                                                       
